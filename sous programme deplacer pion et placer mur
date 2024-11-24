@@ -1,0 +1,57 @@
+
+void deplacerPion(int joueur) {//deplacement du pion pour le joeur
+    int x = positionsX[joueur];
+    int y = positionsY[joueur];
+    char direction;
+
+    plateau[x][y] = VIDE;
+    printf("Deplacez-vous (Z: haut, S: bas, Q: gauche, D: droite) : ");
+    scanf(" %c", &direction);
+
+    if (direction == 'Z' || direction == 'z') x--;
+    else if (direction == 'S' || direction == 's') x++;
+    else if (direction == 'Q' || direction == 'q') y--;
+    else if (direction == 'D' || direction == 'd') y++;
+
+    if (x >= 0 && x < TAILLE_PLATEAU && y >= 0 && y < TAILLE_PLATEAU) {//si le joeur tape une mauvaise touche
+        positionsX[joueur] = x;
+        positionsY[joueur] = y;
+        plateau[x][y] = pions[joueur];
+    } else {
+        printf("Deplacement invalide !\n");
+    }
+}
+
+//sous porgrammer pour placer un mur
+void placerMur() {
+    int ligne;
+    char colLettre, orientation;
+
+    printf("Coordonnees du mur (ex: D4) : ");
+    scanf(" %c%d", &colLettre, &ligne);
+    printf("Orientation (H: horizontal, V: vertical) : ");
+    scanf(" %c", &orientation);
+
+    int colonne = colLettre - 'A';
+    ligne--;
+
+    if (orientation == 'H' || orientation == 'h') {//demande de l'orientation du mur
+        if (colonne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne][colonne + 1] = MUR;
+            printf("Mur horizontal place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else if (orientation == 'V' || orientation == 'v') {
+        if (ligne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne + 1][colonne] = MUR;
+            printf("Mur vertical place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else {
+        printf("Orientation invalide !\n");
+    }
+}
