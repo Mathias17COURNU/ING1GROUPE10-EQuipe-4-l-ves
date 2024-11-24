@@ -1,0 +1,13 @@
+
+// Variables globales
+char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU];
+char nomsJoueurs[MAX_JOUEURS][20];
+char pions[MAX_JOUEURS];
+int positionsX[MAX_JOUEURS];
+int positionsY[MAX_JOUEURS];
+int mursRestants[MAX_JOUEURS];
+int scores[MAX_JOUEURS] = {0};
+int nbJoueurs = 2;
+int jeuEnCours = 1;
+int estIA[MAX_JOUEURS]; // 1 pour IA, 0 pour humain
+int tempsRestant[MAX_JOUEURS];
