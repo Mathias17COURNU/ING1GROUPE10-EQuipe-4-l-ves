@@ -1,0 +1,11 @@
+void Aide() {//sous porgramme de l'aide qui apparait dans le menu principal
+    printf("\n=== Aide ===\n");
+    printf("Objectif du jeu :\n");
+    printf("Chaque joueur doit atteindre le cote oppose du plateau.\n");
+    printf("Actions possibles :\n");
+    printf("1. Deplacer votre pion (une case à la fois dans une direction valide).\n");
+    printf("2. Placer un mur pour bloquer vos adversaires (limite à %d murs par joueur).\n", MAX_MURS);//instruction et regle du jeu
+    printf("Raccourcis :\n");
+    printf(" - Sauvegardez et quittez à tout moment en choisissant l'option correspondante.\n");
+    printf("Bonne chance et amusez-vous bien !\n");
+}
