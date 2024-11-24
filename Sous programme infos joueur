@@ -1,0 +1,19 @@
+void AfficherInfosJoueur(int joueurActuel) { // sous programme pour afficher les infos sur les joueurs lors de la partie
+   printf("\nJoueur actuel : %s (Pion : %c)\n", nomsJoueurs[joueurActuel], pions[joueurActuel]);
+   printf("Scores : ");
+   for (int i = 0; i < nbJoueurs; i++) {
+       printf("%s : %d ", nomsJoueurs[i], scores[i]);
+   }
+   printf("\nMurs restants pour %s : %d\n", nomsJoueurs[joueurActuel], mursRestants[joueurActuel]);
+}
+
+
+int Victoire(int joueur) { // sous programme pour détecter la victoire d'un joueur
+   if (joueur % 2 == 0 && positionsX[joueur] == TAILLE_PLATEAU - 1) {
+       return 1;
+   }
+   if (joueur % 2 != 0 && positionsX[joueur] == 0) {
+       return 1;
+   }
+   return 0;
+}
