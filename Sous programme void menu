@@ -1,0 +1,28 @@
+void Menu() {//sous programme du menue
+    int choix;
+    jeuEnCours = 1;
+    do {
+        printf("\n=== Menu Principal ===\n");//affichage du menu et ses options
+        printf("1. Lancer une nouvelle partie\n");
+        printf("2. Reprendre une partie sauvegardee\n");
+        printf("3. Quitter le jeu\n");
+        printf("4. Afficher l'aide\n");
+        printf("5. Afficher les scores des joueurs\n");
+        printf("Votre choix: ");
+        scanf("%d", &choix);
+
+        switch (choix) {//choix entre les différentes options
+            case 1: NouvellePartie(); break;//renvoie au sous programme
+            case 2: reprendrePartie(); break;
+            case 3:
+                printf("Merci d'avoir joue. Au revoir !\n");
+                jeuEnCours = 0;
+                break;
+            case 4: Aide(); break;
+            case 5: Scores(); break;
+            default:
+                printf("Choix invalide. Veuillez reessayer.\n");
+                break;
+        }
+    } while (jeuEnCours);
+}
