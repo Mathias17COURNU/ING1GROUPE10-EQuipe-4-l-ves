@@ -1,0 +1,74 @@
+void IA(int joueurActuel){//sous programme pour que l'IA joue
+    int action;
+    int actionValide = 0;
+
+    if (estIA[joueurActuel]) {
+        printf("%s (IA) est en train de jouer...\n", nomsJoueurs[joueurActuel]);
+        // Exemple de décision simple pour une IA
+        if (mursRestants[joueurActuel] > 0 && rand() % 2 == 0) {
+            placerMur();
+        } else {
+            deplacerPion(joueurActuel);
+        }
+        actionValide = 1;
+    }
+}
+void PionIA(int joueur) {//pour que l'IA déplace son pion
+    if (estIA[joueur]) {
+        // Déplacement simple vers l'avant (ou autre logique)
+        int nouvelleX = positionsX[joueur] + ((positionsX[joueur] < TAILLE_PLATEAU - 1) ? 1 : 0);
+        if (plateau[nouvelleX][positionsY[joueur]] == VIDE) {
+            plateau[positionsX[joueur]][positionsY[joueur]] = VIDE;
+            positionsX[joueur] = nouvelleX;
+            plateau[nouvelleX][positionsY[joueur]] = pions[joueur];
+        }
+    }
+}
+//sous porgrammer pour placer un mur
+void placerMur() {
+    int ligne;
+    char colLettre, orientation;
+
+    printf("Coordonnees du mur (ex: D4) : ");
+    scanf(" %c%d", &colLettre, &ligne);
+    printf("Orientation (H: horizontal, V: vertical) : ");
+    scanf(" %c", &orientation);
+
+    int colonne = colLettre - 'A';
+    ligne--;
+
+    if (orientation == 'H' || orientation == 'h') {//demande de l'orientation du mur
+        if (colonne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne][colonne + 1] = MUR;
+            printf("Mur horizontal place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else if (orientation == 'V' || orientation == 'v') {
+        if (ligne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne + 1][colonne] = MUR;
+            printf("Mur vertical place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else {
+        printf("Orientation invalide !\n");
+    }
+}
+void MurIA(int joueurActuel) {//placement du mur par l'IA
+    int x, y;
+    if (estIA[joueurActuel]) {
+        // Placement aléatoire d'un mur
+        do {
+            x = rand() % TAILLE_PLATEAU;
+            y = rand() % TAILLE_PLATEAU;
+        } while (plateau[x][y] != VIDE);
+
+        plateau[x][y] = MUR;
+        mursRestants[joueurActuel]--;
+        printf("%s (IA) a placé un mur à (%d, %c).\n",
+               nomsJoueurs[joueurActuel], x + 1, 'A' + y);
+    }
+}
