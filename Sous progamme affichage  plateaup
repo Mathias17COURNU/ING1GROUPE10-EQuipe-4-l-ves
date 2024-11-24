@@ -1,0 +1,31 @@
+// sous programme d'affichage du plateau
+void affichagePlateau() {
+   printf("\n  ");
+   for (char c = 'A'; c < 'A' + TAILLE_PLATEAU; c++) { // mise en place des colonnes et lignes numérotés
+       printf(" %c ", c);
+   }
+   printf("\n\n");
+
+
+   for (int i = 0; i < TAILLE_PLATEAU; i++) {
+       printf("  ");
+       for (int j = 0; j < TAILLE_PLATEAU; j++) {
+           printf("+---"); // design lignes et colonnes
+       }
+       printf("+\n");
+
+
+       printf(" %d ", i + 1);
+       for (int j = 0; j < TAILLE_PLATEAU; j++) {
+           printf("| %c ", plateau[i][j]);
+       }
+       printf("|\n");
+   }
+
+
+   printf("  ");
+   for (int j = 0; j < TAILLE_PLATEAU; j++) {
+       printf("+---"); // design des lignes et colonnes
+   }
+   printf("+\n");
+}
