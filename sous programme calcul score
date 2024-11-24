@@ -1,0 +1,6 @@
+void Scores() {//sous programme pour afficher les scores
+    printf("\n=== Scores des joueurs ===\n");
+    for (int i = 0; i < nbJoueurs; i++) {
+        printf("%s (Pion: %c) : %d points\n", nomsJoueurs[i], pions[i], scores[i]);
+    }
+}
