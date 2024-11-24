@@ -1,0 +1,187 @@
+void Tour(int joueurActuel) {
+    int action;
+    int actionValide = 0;
+
+    debutTour = clock();//démarrage du chronomètre
+
+    do {
+        printf("Actions possibles :\n");
+        printf("1 - Deplacer son pion\n");
+        printf("2 - Placer un mur\n");//affichage des différentes actions possibles lors du tour
+        printf("3 - Sauvegarder et quitter\n");
+        printf("Votre choix : ");
+
+        if (scanf("%d", &action) != 1) {
+            printf("Saisie invalide. Veuillez entrer un nombre entier.\n");
+            while (getchar() != '\n'); // Vider le buffer
+            continue;
+        }
+
+        switch (action) {
+            case 1:
+                deplacerPion(joueurActuel);
+                actionValide = 1;
+                break;
+            case 2:
+                placerMur();
+                actionValide = 1;
+                break;
+            case 3:
+                sauvegarderPartie();
+                exit(0);
+                break;
+            default:
+                printf("Action invalide. Reessayez.\n");//au cas ou le joeur clique sur le mauvais bouton
+                break;
+        }
+    } while (!actionValide);
+
+    clock_t finTour = clock();//fin du chronometre lors ce que le tour du joeur se finit
+    double tempsTour = (double)(finTour - debutTour) / CLOCKS_PER_SEC;
+    tempsCumule[joueurActuel] += tempsTour;
+
+
+    printf("Temps depuis le début de la partie pour %s : %.2f secondes\n", nomsJoueurs[joueurActuel], tempsCumule[joueurActuel]);//affichage du temps
+
+
+    if (tempsCumule[joueurActuel] >= LIMITE_TEMPS) {//boucle si pour vérifier le temps du jeux
+        printf("\n%s a depasse la limite de temps de 10 minutes !\n", nomsJoueurs[joueurActuel]);
+        printf("Fin de la partie.\n");//si le joeur depasse les 600secondes de jeux fin de partie
+        jeuEnCours = 0;
+        Menu();
+    }
+}
+void deplacerPion(int joueur) {//deplacement du pion pour le joeur
+    int x = positionsX[joueur];
+    int y = positionsY[joueur];
+    char direction;
+
+    plateau[x][y] = VIDE;
+    printf("Deplacez-vous (Z: haut, S: bas, Q: gauche, D: droite) : ");
+    scanf(" %c", &direction);
+
+    if (direction == 'Z' || direction == 'z') x--;
+    else if (direction == 'S' || direction == 's') x++;
+    else if (direction == 'Q' || direction == 'q') y--;
+    else if (direction == 'D' || direction == 'd') y++;
+
+    if (x >= 0 && x < TAILLE_PLATEAU && y >= 0 && y < TAILLE_PLATEAU) {//si le joeur tape une mauvaise touche
+        positionsX[joueur] = x;
+        positionsY[joueur] = y;
+        plateau[x][y] = pions[joueur];
+    } else {
+        printf("Deplacement invalide !\n");
+    }
+}
+
+//sous porgrammer pour placer un mur
+void placerMur() {
+    int ligne;
+    char colLettre, orientation;
+
+    printf("Coordonnees du mur (ex: D4) : ");
+    scanf(" %c%d", &colLettre, &ligne);
+    printf("Orientation (H: horizontal, V: vertical) : ");
+    scanf(" %c", &orientation);
+
+    int colonne = colLettre - 'A';
+    ligne--;
+
+    if (orientation == 'H' || orientation == 'h') {//demande de l'orientation du mur
+        if (colonne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne][colonne + 1] = MUR;
+            printf("Mur horizontal place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else if (orientation == 'V' || orientation == 'v') {
+        if (ligne + 1 < TAILLE_PLATEAU) {
+            plateau[ligne][colonne] = MUR;
+            plateau[ligne + 1][colonne] = MUR;
+            printf("Mur vertical place.\n");
+        } else {
+            printf("Placement impossible.\n");
+        }
+    } else {
+        printf("Orientation invalide !\n");
+    }
+}
+void MurIA(int joueurActuel) {//placement du mur par l'IA
+    int x, y;
+    if (estIA[joueurActuel]) {
+        // Placement aléatoire d'un mur
+        do {
+            x = rand() % TAILLE_PLATEAU;
+            y = rand() % TAILLE_PLATEAU;
+        } while (plateau[x][y] != VIDE);
+
+        plateau[x][y] = MUR;
+        mursRestants[joueurActuel]--;
+        printf("%s (IA) a placé un mur à (%d, %c).\n",
+               nomsJoueurs[joueurActuel], x + 1, 'A' + y);
+    }
+}
+// sous porgramme pour la sauvegarde l'état de la partie dans un fichier
+void sauvegarderPartie() {
+    FILE *f = fopen("sauvegarde.txt", "w");
+    if (!f) {
+        printf("Erreur : impossible de sauvegarder la partie.\n");
+        return;
+    }
+
+    fprintf(f, "%d\n", nbJoueurs);
+    for (int i = 0; i < nbJoueurs; i++) {
+        fprintf(f, "%s %c %d %d %d %d\n", nomsJoueurs[i], pions[i], scores[i], mursRestants[i], positionsX[i], positionsY[i]);
+    }
+
+    for (int i = 0; i < TAILLE_PLATEAU; i++) {
+        for (int j = 0; j < TAILLE_PLATEAU; j++) {
+            fprintf(f, "%c ", plateau[i][j]);
+        }
+        fprintf(f, "\n");
+    }
+
+    fclose(f);
+    printf("Partie sauvegardee avec succes dans 'sauvegarde.txt'.\n");
+}
+void reprendrePartie() {//sous porgramme pour reprendre une partie sauvgardée
+    FILE *f = fopen("sauvegarde.txt", "r");
+    if (f == NULL) {
+        printf("Aucune sauvegarde trouvee !\n");
+        return;
+    }
+
+
+    fscanf(f, "%d", &nbJoueurs);//pour reprendre les informations enregistrées
+    for (int i = 0; i < nbJoueurs; i++) {
+        fscanf(f, "%s %c %d %d %d %d", nomsJoueurs[i], &pions[i], &scores[i], &mursRestants[i], &positionsX[i], &positionsY[i]);
+    }
+
+    for (int i = 0; i < TAILLE_PLATEAU; i++) {
+        for (int j = 0; j < TAILLE_PLATEAU; j++) {
+            fscanf(f, " %c", &plateau[i][j]);
+        }
+    }
+
+    fclose(f);
+    printf("Partie reprise avec succes.\n");
+}
+void AfficherInfosJoueur(int joueurActuel) {//sous programme pour afficher les infos sur les joeurs lors de la partie
+    printf("\nJoueur actuel : %s (Pion: %c)\n", nomsJoueurs[joueurActuel], pions[joueurActuel]);
+    printf("Scores : ");
+    for (int i = 0; i < nbJoueurs; i++) {
+        printf("%s : %d ", nomsJoueurs[i], scores[i]);
+    }
+    printf("\nMurs restants pour %s: %d\n", nomsJoueurs[joueurActuel], mursRestants[joueurActuel]);
+}
+int Victoire(int joueur) {//sous porgramme pour détecter la victoire d'un joueur
+
+    if (joueur % 2 == 0 && positionsX[joueur] == TAILLE_PLATEAU - 1) {
+        return 1;
+    }
+    if (joueur % 2 != 0 && positionsX[joueur] == 0) {
+        return 1;
+    }
+    return 0;
+}
