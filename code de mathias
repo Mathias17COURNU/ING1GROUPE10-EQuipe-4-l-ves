@@ -1,0 +1,156 @@
+//
+// Created by julie on 21/11/2024.
+//
+#include <stdio.h>
+#include <cours.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Variables globales
+char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU];
+char nomsJoueurs[MAX_JOUEURS][20];
+char pions[MAX_JOUEURS];
+int positionsX[MAX_JOUEURS];
+int positionsY[MAX_JOUEURS];
+int mursRestants[MAX_JOUEURS];
+int scores[MAX_JOUEURS] = {0};
+int nbJoueurs = 2;
+int jeuEnCours = 1;
+int estIA[MAX_JOUEURS]; // 1 pour IA, 0 pour humain
+int tempsRestant[MAX_JOUEURS];
+
+
+void Menu() {//sous programme du menue
+    int choix;
+    jeuEnCours = 1;
+    do {
+        printf("\n=== Menu Principal ===\n");//affichage du menu et ses options
+        printf("1. Lancer une nouvelle partie\n");
+        printf("2. Reprendre une partie sauvegardee\n");
+        printf("3. Quitter le jeu\n");
+        printf("4. Afficher l'aide\n");
+        printf("5. Afficher les scores des joueurs\n");
+        printf("Votre choix: ");
+        scanf("%d", &choix);
+
+        switch (choix) {//choix entre les différentes options
+            case 1: NouvellePartie(); break;//renvoie au sous programme
+            case 2: reprendrePartie(); break;
+            case 3:
+                printf("Merci d'avoir joue. Au revoir !\n");
+                jeuEnCours = 0;
+                break;
+            case 4: Aide(); break;
+            case 5: Scores(); break;
+            default:
+                printf("Choix invalide. Veuillez reessayer.\n");
+                break;
+        }
+    } while (jeuEnCours);
+}
+
+
+void Aide() {//sous porgramme de l'aide qui apparait dans le menu principal
+    printf("\n=== Aide ===\n");
+    printf("Objectif du jeu :\n");
+    printf("Chaque joueur doit atteindre le cote oppose du plateau.\n");
+    printf("Actions possibles :\n");
+    printf("1. Deplacer votre pion (une case à la fois dans une direction valide).\n");
+    printf("2. Placer un mur pour bloquer vos adversaires (limite à %d murs par joueur).\n", MAX_MURS);//instruction et regle du jeu
+    printf("Raccourcis :\n");
+    printf(" - Sauvegardez et quittez à tout moment en choisissant l'option correspondante.\n");
+    printf("Bonne chance et amusez-vous bien !\n");
+}
+
+
+void Scores() {//sous programme pour afficher les scores
+    printf("\n=== Scores des joueurs ===\n");
+    for (int i = 0; i < nbJoueurs; i++) {
+        printf("%s (Pion: %c) : %d points\n", nomsJoueurs[i], pions[i], scores[i]);
+    }
+}
+
+void NouvellePartie() {//sous programme quand on clique sur nouvelle partie
+
+    printf("Choisissez le nombre de joueurs (2 ou 4) : ");
+    scanf("%d", &nbJoueurs);
+
+    if (nbJoueurs != 2 && nbJoueurs != 4) {
+        printf("Nombre de joueurs invalide. Par defaut, 2 joueurs.\n");//choix du nombre de joeurs et boucle si pour éviter le bug du jeux si le joeur mets autre chose que 2 ou 4 joeurs
+        nbJoueurs = 2;
+    }
+
+    Plateau();
+
+
+    int mursParJoueur = (nbJoueurs == 4) ? 5 : MAX_MURS;
+
+    for (int i = 0; i < nbJoueurs; i++) {
+        printf("Joueur %d : Voulez-vous jouer contre une IA ? (1 = Oui, 0 = Non) : ", i + 1);//demande de jeux contre une IA
+        scanf("%d", &estIA[i]);
+
+        if (estIA[i] == 0) {
+            printf("Entrez le pseudo du joueur %d: ", i + 1);
+            scanf("%s", nomsJoueurs[i]);
+            printf("Choisissez un pion pour %s (un seul caractere): ", nomsJoueurs[i]);//demande des noms et forme des pions des joeurs
+            scanf(" %c", &pions[i]);
+        } else {
+            sprintf(nomsJoueurs[i], "IA%d", i + 1);
+            pions[i] = 'I' + i; //attribution automatique du pion pour l'IA
+            printf("IA%d joue avec le pion %c\n", i + 1, pions[i]);
+        }
+
+        mursRestants[i] = mursParJoueur;
+
+        // Positionnement des pions en fonction du nombre de joueurs
+        if (nbJoueurs == 2) {
+            // Positionnement standard pour 2 joueurs (haut et bas au centre)
+            positionsX[i] = (i == 0) ? 0 : TAILLE_PLATEAU - 1;
+            positionsY[i] = TAILLE_PLATEAU / 2;
+        } else if (nbJoueurs == 4) {
+            // Positionnement pour 4 joueurs (haut, bas, gauche, droite au centre)
+            if (i == 0) {
+                positionsX[i] = 0;
+                positionsY[i] = TAILLE_PLATEAU / 2;
+            } else if (i == 1) { // Joueur 2
+                positionsX[i] = TAILLE_PLATEAU - 1;
+                positionsY[i] = TAILLE_PLATEAU / 2;
+            } else if (i == 2) { // Joueur 3
+                positionsX[i] = TAILLE_PLATEAU / 2;
+                positionsY[i] = 0;
+            } else if (i == 3) { // Joueur 4
+                positionsX[i] = TAILLE_PLATEAU / 2;
+                positionsY[i] = TAILLE_PLATEAU - 1;
+            }
+        }
+        plateau[positionsX[i]][positionsY[i]] = pions[i];//positionnement des pions sur le plaeteau
+    }
+
+    int joueurActuel = 0;
+    jeuEnCours = 1;
+
+    while (jeuEnCours) {
+        affichagePlateau();
+        AfficherInfosJoueur(joueurActuel);
+        Tour(joueurActuel);
+
+        if (Victoire(joueurActuel)) {
+            printf("Felicitations %s ! Vous avez gagne et obtenu 5 points !\n", nomsJoueurs[joueurActuel]);//affichage du message en cas de victoire
+            scores[joueurActuel] += 5;
+            jeuEnCours = 0;
+            Menu();
+        }
+
+        joueurActuel = (joueurActuel + 1) % nbJoueurs;
+    }
+}
+
+
+// sous porgramme d affichage du plateau
+void Plateau() {
+    for (int i = 0; i < TAILLE_PLATEAU; i++) {
+        for (int j = 0; j < TAILLE_PLATEAU; j++) {
+            plateau[i][j] = VIDE;
+        }
+    }
+}
