@@ -1,0 +1,54 @@
+void Tour(int joueurActuel) {
+    int action;
+    int actionValide = 0;
+
+    debutTour = clock();//démarrage du chronomètre
+
+    do {
+        printf("Actions possibles :\n");
+        printf("1 - Deplacer son pion\n");
+        printf("2 - Placer un mur\n");//affichage des différentes actions possibles lors du tour
+        printf("3 - Sauvegarder et quitter\n");
+        printf("Votre choix : ");
+
+        if (scanf("%d", &action) != 1) {
+            printf("Saisie invalide. Veuillez entrer un nombre entier.\n");
+            while (getchar() != '\n'); // Vider le buffer
+            continue;
+        }
+
+        switch (action) {
+            case 1:
+                deplacerPion(joueurActuel);
+                actionValide = 1;
+                break;
+            case 2:
+                placerMur();
+                actionValide = 1;
+                break;
+            case 3:
+                sauvegarderPartie();
+                exit(0);
+                break;
+            default:
+                printf("Action invalide. Reessayez.\n");//au cas ou le joeur clique sur le mauvais bouton
+                break;
+        }
+    } while (!actionValide);
+
+    clock_t finTour = clock();//fin du chronometre lors ce que le tour du joeur se finit
+    double tempsTour = (double)(finTour - debutTour) / CLOCKS_PER_SEC;
+    tempsCumule[joueurActuel] += tempsTour;
+
+
+    printf("Temps depuis le début de la partie pour %s : %.2f secondes\n", nomsJoueurs[joueurActuel], tempsCumule[joueurActuel]);//affichage du temps
+
+
+    if (tempsCumule[joueurActuel] >= LIMITE_TEMPS) {//boucle si pour vérifier le temps du jeux
+        printf("\n%s a depasse la limite de temps de 10 minutes !\n", nomsJoueurs[joueurActuel]);
+        printf("Fin de la partie.\n");//si le joeur depasse les 600secondes de jeux fin de partie
+        jeuEnCours = 0;
+        Menu();
+    }
+}
+
